@@ -1,0 +1,6 @@
+{
+  "appHostPath": "../AppHost/AppHost.csproj",
+  "Parameters": {
+    "llm-openai-api-key": "REPLACE_WITH_YOUR_API_KEY"
+  }
+}

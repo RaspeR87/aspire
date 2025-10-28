@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.0-preview.1.25467.6" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>25ca2269-4568-4125-9a6f-5d930aa24929</UserSecretsId>
+    <NoWarn>$(NoWarn);ASPIREHOSTINGPYTHON001</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0-preview.1.25467.6" />
+    <PackageReference Include="Aspire.Hosting.DevTunnels" Version="9.5.0-preview.1.25467.6" />
+    <PackageReference Include="Aspire.Hosting.Python" Version="9.5.0-preview.1.25467.6" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.McpInspector" Version="9.7.2" />
+  </ItemGroup>
+
+</Project>
