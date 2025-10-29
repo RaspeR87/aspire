@@ -1,0 +1,27 @@
+# infra/hsm/Dockerfile.utimaco-sim-debian
+FROM debian:bookworm-slim
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 32-bit runtime for your i386 simulator + small tools
+RUN dpkg --add-architecture i386 \
+ && apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates bash dos2unix netcat-openbsd file \
+      libc6:i386 libstdc++6:i386 libgcc-s1:i386 zlib1g:i386 libssl3:i386 \
+ && rm -rf /var/lib/apt/lists/*
+
+# ⬇️ Copy the vendor tree WITH BOTH FOLDERS (bin + devices)
+ADD ./utimaco-sim/ /opt/utimaco/sim/
+
+# Normalize scripts and perms
+RUN find /opt/utimaco/sim/bin -name "*.sh" -exec dos2unix {} \; || true \
+ && chmod +x /opt/utimaco/sim/bin/*.sh /opt/utimaco/sim/bin/bl_sim5 || true
+
+# Required working dir so vendor wrapper finds ../devices
+WORKDIR /opt/utimaco/sim
+
+EXPOSE 3001/tcp
+# (Don’t declare a VOLUME yet—see note below)
+HEALTHCHECK --interval=10s --timeout=2s --retries=12 CMD nc -z 127.0.0.1 3001 || exit 1
+
+# Start via the vendor wrapper which reads bin/cs_sim.ini and uses devices/
+ENTRYPOINT ["/bin/bash","-lc","bin/cs_sim.sh"]

@@ -1,0 +1,2 @@
+security.provider.9=sun.security.pkcs11.SunPKCS11 /opt/utimaco/sunpkcs11-utimaco.cfg
+

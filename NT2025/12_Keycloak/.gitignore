@@ -1,0 +1,6 @@
+﻿infra/aspire/**/obj
+infra/aspire/**/bin
+services/**/obj
+services/**/bin
+
+infra/keycloak/providers/**/target

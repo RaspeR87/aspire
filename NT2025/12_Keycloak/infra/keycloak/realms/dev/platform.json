@@ -1,0 +1,157 @@
+{
+  "realm": "platform",
+  "enabled": true,
+  "displayName": "Platform",
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "sl"],
+  "defaultLocale": "en",
+
+  "clients": [
+    {
+      "clientId": "platform-fe",
+      "name": "Platform SPA",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:4300/*"
+      },
+      "rootUrl": "http://localhost:4300",
+      "redirectUris": ["http://localhost:4300/*"],
+      "webOrigins": ["http://localhost:4300"],
+      "protocolMappers": [
+        {
+          "name": "audience platform-be",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "platform-be",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "platform-be",
+      "name": "Platform Backend (confidential)",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "redirectUris": [],
+      "webOrigins": []
+    },
+    {
+      "clientId": "platform-docs",
+      "name": "Platform Docs (Cookie/OIDC for Scalar)",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "W2Nz39aCXfnV9TLWnCN7",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "https://localhost:7284",
+      "redirectUris": [
+        "https://localhost:7284/signin-oidc",
+        "https://localhost:7284/signout-callback-oidc",
+        "http://localhost:5133/signin-oidc",
+        "http://localhost:5133/signout-callback-oidc"
+      ],
+      "webOrigins": [
+        "https://localhost:7284",
+        "http://localhost:5133"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://localhost:7284/*##http://localhost:5133/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles -> roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "platform-scalar",
+      "name": "Platform Scalar (OAuth2 for Try-It)",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://localhost:7284/*##http://localhost:7284/*"
+      },
+      "rootUrl": "https://localhost:7284",
+      "redirectUris": [
+        "https://localhost:7284/scalar/*",
+        "https://localhost:7284/*",
+        "http://localhost:7284/scalar/*",
+        "http://localhost:7284/*"
+      ],
+      "webOrigins": [
+        "https://localhost:7284",
+        "http://localhost:7284"
+      ],
+      "protocolMappers": [
+        {
+          "name": "audience platform-be",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "platform-be",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+
+  "roles": {
+    "realm": [
+      { "name": "user",  "description": "Default app user" },
+      { "name": "admin", "description": "Platform administrator" }
+    ]
+  },
+
+  "users": [
+    {
+      "username": "platform.admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "platform.admin@example.com",
+      "credentials": [
+        { "type": "password", "value": "Passw0rd!", "temporary": true }
+      ],
+      "realmRoles": ["admin"]
+    }
+  ]
+}

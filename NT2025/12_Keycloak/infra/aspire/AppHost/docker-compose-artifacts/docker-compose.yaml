@@ -1,0 +1,105 @@
+services:
+  instance-82-dashboard:
+    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
+    expose:
+      - "18888"
+      - "18889"
+    networks:
+      - "aspire"
+    restart: "always"
+  e01-otelcollector:
+    image: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.123.0"
+    environment:
+      ASPIRE_ENDPOINT: "${HTTP://LOCALHOST:18889}"
+      ASPIRE_API_KEY: ""
+      ASPIRE_INSECURE: "true"
+    expose:
+      - "4317"
+      - "4318"
+    volumes:
+      - type: "bind"
+        target: "/etc/otelcol-contrib/config.yaml"
+        source: "/Users/rasper87/Desktop/NT2025_Aspire/12_Keycloak/infra/observability/collector_config.yaml"
+        read_only: false
+    networks:
+      - "aspire"
+  d01-hsm-sim:
+    image: "registry.local/utimaco/sim:6.0-debian"
+    expose:
+      - "3001"
+    volumes:
+      - type: "volume"
+        target: "/opt/utimaco/devices"
+        source: "hsm_sim_devices"
+        read_only: false
+    networks:
+      - "aspire"
+  a01-keycloak-db:
+    image: "postgres:17.6-alpine3.22"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "1ecBuiPgNGrqdbDcdYtF"
+      POSTGRES_DB: "keycloak"
+    expose:
+      - "5432"
+    volumes:
+      - type: "volume"
+        target: "/var/lib/postgresql/data"
+        source: "keycloak_db_data"
+        read_only: false
+    networks:
+      - "aspire"
+  a02-keycloak:
+    image: "${A02_KEYCLOAK_IMAGE}"
+    command:
+      - "start-dev"
+      - "--import-realm"
+      - "--features=scripts"
+      - "--spi-script-upload-enabled=true"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "Passw0rd!"
+      KC_DB: "postgres"
+      KC_DB_SCHEMA: "public"
+      KC_DB_URL_HOST: "a01-keycloak-db"
+      KC_DB_URL_PORT: "5432"
+      KC_DB_USERNAME: "postgres"
+      KC_DB_PASSWORD: "1ecBuiPgNGrqdbDcdYtF"
+      KC_DB_DATABASE: "keycloak"
+      KC_HOSTNAME: "http://localhost:8080"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      JAVA_OPTS_APPEND: "-Djava.security.debug=properties"
+      JAVA_TOOL_OPTIONS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.service.name=keycloak -Dotel.exporter.otlp.protocol=http/protobuf -Dotel.exporter.otlp.endpoint=http://e01-otelcollector:4318 -Dotel.resource.attributes=service.version=26.3 -Djava.security.properties=/opt/utimaco/java.security"
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    volumes:
+      - type: "bind"
+        target: "/otel/opentelemetry-javaagent.jar"
+        source: "/Users/rasper87/Desktop/NT2025_Aspire/12_Keycloak/infra/keycloak/otel/opentelemetry-javaagent.jar"
+        read_only: true
+      - type: "bind"
+        target: "/opt/keycloak/providers/keycloak-hsm-provider-1.0.0.jar"
+        source: "/Users/rasper87/Desktop/NT2025_Aspire/12_Keycloak/infra/keycloak/providers/keycloak-hsm/target/deploy/keycloak-hsm-provider-1.0.0.jar"
+        read_only: true
+      - type: "bind"
+        target: "/opt/keycloak/data/import"
+        source: "/Users/rasper87/Desktop/NT2025_Aspire/12_Keycloak/infra/keycloak/realms/dev"
+        read_only: true
+    depends_on:
+      a01-keycloak-db:
+        condition: "service_started"
+      e01-otelcollector:
+        condition: "service_started"
+    networks:
+      - "aspire"
+networks:
+  aspire:
+    driver: "bridge"
+volumes:
+  hsm_sim_devices:
+    driver: "local"
+  keycloak_db_data:
+    driver: "local"
