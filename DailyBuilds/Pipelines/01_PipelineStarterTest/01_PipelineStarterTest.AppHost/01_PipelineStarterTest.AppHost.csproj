@@ -1,0 +1,21 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0-preview.1.25555.14">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>ae112fcb-40fa-4b4e-b69e-78e78ab66819</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\01_PipelineStarterTest.ApiService\01_PipelineStarterTest.ApiService.csproj" />
+    <ProjectReference Include="..\01_PipelineStarterTest.Web\01_PipelineStarterTest.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.1.0-preview.1.25555.14" />
+    <PackageReference Include="Aspire.Hosting.Docker" Version="13.1.0-preview.1.25555.14" />
+  </ItemGroup>
+
+</Project>
